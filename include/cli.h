@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define CMD_NAME_SIZE 12
-#define INPUT_BUF_SIZE 64
+#define INPUT_BUF_SIZE 32
 
 /**
  * @brief Structure representing a command in the CLI.
@@ -12,7 +12,7 @@
  * Each command has a name (up to CMD_NAME_SIZE characters), a description, and a function pointer that points to the function that implements the command's behavior. The function takes a single argument, which is a string containing any additional arguments passed to the command.
  */
 typedef struct {
-    char name[CMD_NAME_SIZE];
+    const char *name;
     const char *description;
     void (*func)(char*);
 } commandType;

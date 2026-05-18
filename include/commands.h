@@ -9,5 +9,8 @@ extern int numCommands;
 void helpCommand(char *args);
 void printCommand(char *args);
 void filesCommand(char *args);
+void freeSpaceCommand(char *args);
+void writeFileCommand(char *args);
+void readFileCommand(char *args);
 
 #endif //ARDUINOOS_COMMANDS_H

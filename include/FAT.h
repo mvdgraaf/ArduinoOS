@@ -24,6 +24,9 @@ int findFileIndex(const char* name);
 void readFATEntry(int entryIndex, FATEntry &entry);
 void writeFATEntry(int entryIndex, const FATEntry &entry);
 void printFileList();
+bool writeFile(const char* filename, const char* data, uint32_t size);
+bool readFile(const char* filename);
+int findFreeBlock(uint32_t size);
 int getFreeSpace();
 
 extern EERef noOfFiles;

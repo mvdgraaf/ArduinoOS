@@ -24,7 +24,7 @@ void CLI::loop() {
                     break;
                 }
             }
-            Serial.print("ArduinoOS > ");
+            Serial.print(F("ArduinoOS > "));
         }
         else if (_inputBufferIndex < INPUT_BUF_SIZE - 1) {
             _inputBuffer[_inputBufferIndex++] = c;
@@ -49,5 +49,5 @@ void CLI::parseInput(char *input) {
             return;
         }
     }
-    Serial.println("Unknown command");
+    Serial.println(F("Unknown command"));
 }
