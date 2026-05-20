@@ -1,19 +1,20 @@
 #include "../include/commands.h"
 #include "../include/FAT.h"
+#include <avr/wdt.h>
 
 void helpCommand(char *args) {
     if (args == nullptr) {
         for (int i = 0; i < numCommands; i++) {
-            Serial.print(commands[i].name);
-            Serial.print(" - ");
-            Serial.println(commands[i].description);
+            Serial.print(reinterpret_cast<const __FlashStringHelper*>(commands[i].name));
+            Serial.print(F(" - "));
+            Serial.println(reinterpret_cast<const __FlashStringHelper*>(commands[i].description));
         }
     } else {
         for (int i = 0; i < numCommands; i++) {
-            if (strcmp(commands[i].name, args) == 0) {
-                Serial.print(commands[i].name);
-                Serial.print(" - ");
-                Serial.println(commands[i].description);
+            if (strcmp_P(args, commands[i].name) == 0) {
+                Serial.print(reinterpret_cast<const __FlashStringHelper*>(commands[i].name));
+                Serial.print(F(" - "));
+                Serial.println(reinterpret_cast<const __FlashStringHelper*>(commands[i].description));
                 return;
             }
         }
@@ -28,9 +29,15 @@ void printCommand(char *args) {
     }
 }
 
+void reboot(char *args) {
+    Serial.println(F("Rebooting..."));
+    cli();
+    wdt_enable(WDTO_15MS);
+    while (1);
+}
 
 void filesCommand(char *args) {
-    if (noOfFiles == 0) {
+    if (static_cast<int>(noOfFiles) == 0) {
         Serial.println(F("No files in the filesystem"));
     } else {
         printFileList();
@@ -38,7 +45,7 @@ void filesCommand(char *args) {
 }
 
 void freeSpaceCommand(char *args) {
-    int freeSpace = getFreeSpace();
+    const int freeSpace = getFreeSpace();
     Serial.print(F("Free space: "));
     Serial.print(freeSpace);
     Serial.println(F(" bytes"));
@@ -50,8 +57,8 @@ void writeFileCommand(char *args) {
         return;
     }
 
-    char *filename = strtok(args, " ");
-    char *data     = strtok(nullptr, "");
+    const char *filename = strtok(args, " ");
+    const char *data     = strtok(nullptr, "");
 
     if (filename == nullptr || data == nullptr) {
         Serial.println(F("Usage: write <filename> <data>"));
@@ -63,10 +70,11 @@ void writeFileCommand(char *args) {
         return;
     }
 
-    bool success = writeFile(filename, data, strlen(data) + 1);
+    const auto size = strlen(data) + 1;
+    bool success = writeFile(filename, data, size);
     if (success) {
         Serial.print(F("Written "));
-        Serial.print(strlen(data) + 1);
+        Serial.print(size);
         Serial.print(F(" bytes to '"));
         Serial.print(filename);
         Serial.println(F("'"));
@@ -79,4 +87,12 @@ void readFileCommand(char *args) {
         return;
     }
     readFile(args);
+}
+
+void deleteFileCommand(char *args) {
+    if (args == nullptr) {
+        Serial.println(F("Usage: delete 1234567890"));
+        return;
+    }
+    deleteFile(args);
 }

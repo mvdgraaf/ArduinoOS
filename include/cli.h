@@ -12,8 +12,8 @@
  * Each command has a name (up to CMD_NAME_SIZE characters), a description, and a function pointer that points to the function that implements the command's behavior. The function takes a single argument, which is a string containing any additional arguments passed to the command.
  */
 typedef struct {
-    const char *name;
-    const char *description;
+    const char * PROGMEM name;
+    const char * PROGMEM description;
     void (*func)(char*);
 } commandType;
 

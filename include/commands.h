@@ -12,5 +12,7 @@ void filesCommand(char *args);
 void freeSpaceCommand(char *args);
 void writeFileCommand(char *args);
 void readFileCommand(char *args);
+void deleteFileCommand(char *args);
+void reboot(char *args);
 
 #endif //ARDUINOOS_COMMANDS_H

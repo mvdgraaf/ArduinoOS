@@ -6,7 +6,10 @@
 #define ARDUINOOS_FAT_H
 
 #include <Arduino.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include <EEPROM.h>
+#pragma GCC diagnostic pop
 
 struct FATEntry {
     char filename[12];
@@ -26,6 +29,7 @@ void writeFATEntry(int entryIndex, const FATEntry &entry);
 void printFileList();
 bool writeFile(const char* filename, const char* data, uint32_t size);
 bool readFile(const char* filename);
+void deleteFile(const char* filename);
 int findFreeBlock(uint32_t size);
 int getFreeSpace();
 

@@ -10,7 +10,7 @@ void initFileSystem() {
 
 int findFileIndex(const char *filename) {
     for (int i = 0; i < noOfFiles; i++) {
-        FATEntry entry;
+        FATEntry entry{};
         readFATEntry(i, entry);
         if (strncmp(entry.filename, filename, sizeof(entry.filename)) == 0) {
             return i;
@@ -53,7 +53,7 @@ bool writeFile(const char* filename, const char* data, uint32_t size) {
         EEPROM.update(addr + i, data[i]);
     }
 
-    FATEntry entry;
+    FATEntry entry{};
     strncpy(entry.filename, filename, sizeof(entry.filename) - 1);
     entry.filename[sizeof(entry.filename) - 1] = '\0';
     entry.fileSize = size;
@@ -71,7 +71,7 @@ bool readFile(const char *filename) {
         Serial.println(F("File not found"));
         return false;
     }
-    FATEntry entry;
+    FATEntry entry{};
     readFATEntry(index, entry);
 
     for (uint32_t i = 0; i < entry.fileSize; i++) {
@@ -82,15 +82,36 @@ bool readFile(const char *filename) {
     return true;
 }
 
+void deleteFile(const char *filename) {
+    int index = findFileIndex(filename);
+    if (index == -1) {
+        Serial.println(F("File not found"));
+        return;
+    }
+
+    FATEntry entry{};
+    readFATEntry(index, entry);
+    for (uint32_t i = 0; i < entry.fileSize; i++) {
+        EEPROM.update(entry.startPos + i, 0);
+    }
+
+    for (int i = index; i < noOfFiles - 1; i++) {
+        readFATEntry(i+1, entry);
+        writeFATEntry(i, entry);
+    }
+
+    --noOfFiles;
+}
+
 void printFileList() {
     Serial.println(F("Filename     Size   Start"));
     Serial.println(F("--------     ----   -----"));
+    FATEntry tempEntry{};
     for (int i = 0; i < noOfFiles; i++) {
-        FATEntry tempEntry{};
         readFATEntry(i, tempEntry);
         Serial.print(tempEntry.filename);
-        int len = strlen(tempEntry.filename);
-        for (int j = len; j < 13; j++) Serial.print(' ');
+        uint16_t len = strlen(tempEntry.filename);
+        for (uint16_t j = len; j < 13; j++) Serial.print(' ');
         Serial.print(tempEntry.fileSize);
         Serial.print(F("      "));
         Serial.println(tempEntry.startPos);
@@ -107,8 +128,8 @@ int findFreeBlock(uint32_t size) {
         uint32_t end;
     } regions[MAX_FILES];
 
+    FATEntry entry{};
     for (int i = 0; i < noOfFiles; i++) {
-        FATEntry entry;
         readFATEntry(i, entry);
         regions[i] = { entry.startPos, entry.startPos + entry.fileSize };
     }
@@ -145,8 +166,8 @@ int findFreeBlock(uint32_t size) {
 
 int getFreeSpace() {
     int marker = DATA_START_ADDR;
+    FATEntry tempEntry;
     for (int i = 0; i < noOfFiles; i++) {
-        FATEntry tempEntry;
         readFATEntry(i, tempEntry);
         int entryEnd = tempEntry.startPos + tempEntry.fileSize;
         if (entryEnd > DATA_START_ADDR) {

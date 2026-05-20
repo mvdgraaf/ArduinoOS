@@ -44,7 +44,7 @@ void CLI::parseInput(char *input) {
         }
     }
     for (int i = 0; i < _numCommands; i++) {
-        if (strcmp(_commands[i].name, input) == 0) {
+        if (strcmp_P(input, _commands[i].name) == 0) {
             _commands[i].func(args);
             return;
         }
